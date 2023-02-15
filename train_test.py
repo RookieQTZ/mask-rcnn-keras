@@ -131,7 +131,7 @@ class DrugDataset(utils.Dataset):
             mask_path = mask_floder + "/" + filestr + ".png"
             # yaml_path = dataset_root_path + "labelme_json/" + filestr + "_json/info.yaml"
             yaml_path = dataset_root_path + "labelme_json/" + filestr + "/info.yaml"
-            print(dataset_root_path + "labelme_json/" + filestr + "/img.png")
+            # print(dataset_root_path + "labelme_json/" + filestr + "/img.png")
         cv_img = cv2.imread(dataset_root_path + "labelme_json/" + filestr + "/img.png")
 
         self.add_image("shapes", image_id=i, path=img_floder + "/" + imglist[i],
