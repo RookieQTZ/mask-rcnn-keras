@@ -137,34 +137,33 @@ class DrugDataset(utils.Dataset):
         self.add_image("shapes", image_id=i, path=img_floder + "/" + imglist[i],
                        width=cv_img.shape[1], height=cv_img.shape[0], mask_path=mask_path, yaml_path=yaml_path)
 
+    # 重写load_mask
+    def load_mask(self, image_id):
+        """Generate instance masks for shapes of the given image ID.
+        """
+        global iter_num
+        print("image_id", image_id)
+        info = self.image_info[image_id]
+        count = 1  # number of object
+        img = Image.open(info['mask_path'])
+        num_obj = self.get_obj_index(img)
+        mask = np.zeros([info['height'], info['width'], num_obj], dtype=np.uint8)
+        mask = self.draw_mask(num_obj, mask, img, image_id)
+        occlusion = np.logical_not(mask[:, :, -1]).astype(np.uint8)
+        for i in range(count - 2, -1, -1):
+            mask[:, :, i] = mask[:, :, i] * occlusion
 
-# 重写load_mask
-def load_mask(self, image_id):
-    """Generate instance masks for shapes of the given image ID.
-    """
-    global iter_num
-    print("image_id", image_id)
-    info = self.image_info[image_id]
-    count = 1  # number of object
-    img = Image.open(info['mask_path'])
-    num_obj = self.get_obj_index(img)
-    mask = np.zeros([info['height'], info['width'], num_obj], dtype=np.uint8)
-    mask = self.draw_mask(num_obj, mask, img, image_id)
-    occlusion = np.logical_not(mask[:, :, -1]).astype(np.uint8)
-    for i in range(count - 2, -1, -1):
-        mask[:, :, i] = mask[:, :, i] * occlusion
-
-        occlusion = np.logical_and(occlusion, np.logical_not(mask[:, :, i]))
-    labels = []
-    labels = self.from_yaml_get_class(image_id)
-    labels_form = []
-    for i in range(len(labels)):
-        if labels[i].find("1") != -1:
-            labels_form.append("category1")
-        # if labels[i].find("category2") != -1:
-        #     labels_form.append("category2")
-    class_ids = np.array([self.class_names.index(s) for s in labels_form])
-    return mask, class_ids.astype(np.int32)
+            occlusion = np.logical_and(occlusion, np.logical_not(mask[:, :, i]))
+        labels = []
+        labels = self.from_yaml_get_class(image_id)
+        labels_form = []
+        for i in range(len(labels)):
+            if labels[i].find("1") != -1:
+                labels_form.append("1")
+            # if labels[i].find("category2") != -1:
+            #     labels_form.append("category2")
+        class_ids = np.array([self.class_names.index(s) for s in labels_form])
+        return mask, class_ids.astype(np.int32)
 
 
 def get_ax(rows=1, cols=1, size=8):
