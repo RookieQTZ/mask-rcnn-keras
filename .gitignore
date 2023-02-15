@@ -1,0 +1,9 @@
+__pycache__/
+data/
+/images
+logs/
+test/
+mydata/
+train_data/
+*.zip
+*.h5
